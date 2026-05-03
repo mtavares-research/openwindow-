@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "Study Sanctuary"
+version = "1.0.0"
+id = "artifacts/study-sanctuary"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 23557
+
+[services.development]
+run = "pnpm --filter @workspace/study-sanctuary run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/study-sanctuary", "run", "build" ]
+publicDir = "artifacts/study-sanctuary/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "23557"
+BASE_PATH = "/"

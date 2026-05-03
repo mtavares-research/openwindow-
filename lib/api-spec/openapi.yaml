@@ -1,22 +1,36 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Study Sanctuary API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: study-sessions
+    description: Study timer sessions
+  - name: cards
+    description: Collectible trading cards
+  - name: collection
+    description: User card collection
+  - name: packs
+    description: Card pack management
+  - name: study-materials
+    description: Uploaded study materials
+  - name: flashcards
+    description: AI-generated flashcards
+  - name: quizzes
+    description: AI-generated quiz questions
+  - name: stats
+    description: Dashboard stats
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,13 +38,573 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /study-sessions:
+    get:
+      operationId: listStudySessions
+      tags: [study-sessions]
+      summary: List recent study sessions
+      responses:
+        "200":
+          description: List of study sessions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StudySession"
+
+  /study-sessions/start:
+    post:
+      operationId: startStudySession
+      tags: [study-sessions]
+      summary: Start a new study session
+      responses:
+        "201":
+          description: Created study session
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StudySession"
+
+  /study-sessions/current:
+    get:
+      operationId: getCurrentStudySession
+      tags: [study-sessions]
+      summary: Get the currently active study session
+      responses:
+        "200":
+          description: Active session or null
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CurrentSessionResponse"
+
+  /study-sessions/{id}/stop:
+    patch:
+      operationId: stopStudySession
+      tags: [study-sessions]
+      summary: Stop an active study session
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Stopped session
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StudySession"
+        "404":
+          description: Session not found
+
+  /stats:
+    get:
+      operationId: getStats
+      tags: [stats]
+      summary: Get aggregate study and collection stats
+      responses:
+        "200":
+          description: Stats summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Stats"
+
+  /cards:
+    get:
+      operationId: listCards
+      tags: [cards]
+      summary: List all card definitions in the catalog
+      responses:
+        "200":
+          description: Card catalog
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Card"
+
+  /collection:
+    get:
+      operationId: getCollection
+      tags: [collection]
+      summary: Get user's collected cards
+      responses:
+        "200":
+          description: User card collection
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CollectedCard"
+
+  /packs/status:
+    get:
+      operationId: getPackStatus
+      tags: [packs]
+      summary: Check if a card pack is available to open
+      responses:
+        "200":
+          description: Pack availability status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PackStatus"
+
+  /packs/open:
+    post:
+      operationId: openPack
+      tags: [packs]
+      summary: Open a card pack and receive cards
+      responses:
+        "200":
+          description: Cards received from pack opening
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PackOpenResult"
+        "400":
+          description: No pack available
+
+  /study-materials:
+    get:
+      operationId: listStudyMaterials
+      tags: [study-materials]
+      summary: List all uploaded study materials
+      responses:
+        "200":
+          description: List of study materials
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StudyMaterial"
+    post:
+      operationId: createStudyMaterial
+      tags: [study-materials]
+      summary: Upload a new study material
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateStudyMaterialBody"
+      responses:
+        "201":
+          description: Created study material
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StudyMaterial"
+
+  /study-materials/{id}:
+    get:
+      operationId: getStudyMaterial
+      tags: [study-materials]
+      summary: Get a specific study material
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Study material
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StudyMaterial"
+        "404":
+          description: Not found
+    delete:
+      operationId: deleteStudyMaterial
+      tags: [study-materials]
+      summary: Delete a study material
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /study-materials/{id}/generate:
+    post:
+      operationId: generateFromMaterial
+      tags: [study-materials]
+      summary: AI-generate flashcards and quizzes from a study material
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Generation result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenerationResult"
+        "404":
+          description: Not found
+
+  /flashcards:
+    get:
+      operationId: listFlashcards
+      tags: [flashcards]
+      summary: List all flashcards
+      parameters:
+        - name: materialId
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Flashcards
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Flashcard"
+
+  /flashcards/due:
+    get:
+      operationId: getDueFlashcards
+      tags: [flashcards]
+      summary: Get flashcards due for spaced repetition review
+      responses:
+        "200":
+          description: Due flashcards
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Flashcard"
+
+  /flashcards/{id}/review:
+    post:
+      operationId: reviewFlashcard
+      tags: [flashcards]
+      summary: Mark a flashcard as reviewed with difficulty rating
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReviewFlashcardBody"
+      responses:
+        "200":
+          description: Updated flashcard
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Flashcard"
+
+  /quizzes:
+    get:
+      operationId: listQuizzes
+      tags: [quizzes]
+      summary: List quiz questions
+      parameters:
+        - name: materialId
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Quiz questions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Quiz"
+
+  /quizzes/{id}/answer:
+    post:
+      operationId: answerQuiz
+      tags: [quizzes]
+      summary: Submit an answer to a quiz question
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AnswerQuizBody"
+      responses:
+        "200":
+          description: Answer result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnswerResult"
+
 components:
   schemas:
     HealthStatus:
       type: object
+      required: [status]
       properties:
         status:
           type: string
-      required:
-        - status
 
+    StudySession:
+      type: object
+      required: [id, startedAt, status]
+      properties:
+        id:
+          type: integer
+        startedAt:
+          type: string
+          format: date-time
+        endedAt:
+          type: ["string", "null"]
+          format: date-time
+        durationSeconds:
+          type: ["integer", "null"]
+        status:
+          type: string
+          enum: [active, completed]
+        packEarned:
+          type: boolean
+
+    CurrentSessionResponse:
+      type: object
+      required: [session]
+      properties:
+        session:
+          oneOf:
+            - $ref: "#/components/schemas/StudySession"
+            - type: "null"
+
+    Stats:
+      type: object
+      required: [totalStudySeconds, sessionsCompleted, cardsCollected, packsOpened, uniqueCards, legendaryCards]
+      properties:
+        totalStudySeconds:
+          type: integer
+        sessionsCompleted:
+          type: integer
+        cardsCollected:
+          type: integer
+        packsOpened:
+          type: integer
+        uniqueCards:
+          type: integer
+        legendaryCards:
+          type: integer
+        flashcardsCreated:
+          type: integer
+        quizzesCreated:
+          type: integer
+
+    Card:
+      type: object
+      required: [id, name, rarity, type, description, imageUrl, element]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        rarity:
+          type: string
+          enum: [common, rare, holographic, legendary]
+        type:
+          type: string
+          enum: [creature, quote, fact, achievement, cosmetic]
+        description:
+          type: string
+        imageUrl:
+          type: string
+        element:
+          type: string
+        power:
+          type: ["integer", "null"]
+        flavorText:
+          type: ["string", "null"]
+
+    CollectedCard:
+      type: object
+      required: [id, cardId, card, acquiredAt]
+      properties:
+        id:
+          type: integer
+        cardId:
+          type: integer
+        card:
+          $ref: "#/components/schemas/Card"
+        acquiredAt:
+          type: string
+          format: date-time
+        packOpeningId:
+          type: ["integer", "null"]
+
+    PackStatus:
+      type: object
+      required: [available, studySecondsRequired, currentStudySeconds, packsAvailable]
+      properties:
+        available:
+          type: boolean
+        studySecondsRequired:
+          type: integer
+        currentStudySeconds:
+          type: integer
+        packsAvailable:
+          type: integer
+
+    PackOpenResult:
+      type: object
+      required: [packId, cards]
+      properties:
+        packId:
+          type: integer
+        cards:
+          type: array
+          items:
+            $ref: "#/components/schemas/CollectedCard"
+
+    StudyMaterial:
+      type: object
+      required: [id, title, type, content, createdAt, hasGeneratedContent]
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        type:
+          type: string
+          enum: [notes, pdf, slides, guide]
+        content:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        hasGeneratedContent:
+          type: boolean
+        flashcardCount:
+          type: integer
+        quizCount:
+          type: integer
+
+    CreateStudyMaterialBody:
+      type: object
+      required: [title, type, content]
+      properties:
+        title:
+          type: string
+        type:
+          type: string
+          enum: [notes, pdf, slides, guide]
+        content:
+          type: string
+
+    GenerationResult:
+      type: object
+      required: [flashcardsGenerated, quizzesGenerated]
+      properties:
+        flashcardsGenerated:
+          type: integer
+        quizzesGenerated:
+          type: integer
+
+    Flashcard:
+      type: object
+      required: [id, materialId, front, back, category, difficulty]
+      properties:
+        id:
+          type: integer
+        materialId:
+          type: integer
+        front:
+          type: string
+        back:
+          type: string
+        category:
+          type: ["string", "null"]
+        difficulty:
+          type: integer
+        lastReviewedAt:
+          type: ["string", "null"]
+          format: date-time
+        nextReviewAt:
+          type: ["string", "null"]
+          format: date-time
+        reviewCount:
+          type: integer
+
+    ReviewFlashcardBody:
+      type: object
+      required: [difficulty]
+      properties:
+        difficulty:
+          type: integer
+          minimum: 1
+          maximum: 5
+
+    Quiz:
+      type: object
+      required: [id, materialId, question, options, correctIndex]
+      properties:
+        id:
+          type: integer
+        materialId:
+          type: integer
+        question:
+          type: string
+        options:
+          type: array
+          items:
+            type: string
+        correctIndex:
+          type: integer
+        explanation:
+          type: ["string", "null"]
+        timesAnswered:
+          type: integer
+        timesCorrect:
+          type: integer
+
+    AnswerQuizBody:
+      type: object
+      required: [selectedIndex]
+      properties:
+        selectedIndex:
+          type: integer
+
+    AnswerResult:
+      type: object
+      required: [correct, correctIndex, explanation]
+      properties:
+        correct:
+          type: boolean
+        correctIndex:
+          type: integer
+        explanation:
+          type: ["string", "null"]
