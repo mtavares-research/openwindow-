@@ -4,14 +4,9 @@ import { Clock, Package, Brain, TrendingUp, Calendar, Zap, Star, BookOpen } from
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 interface ApiStats {
-  totalStudySeconds: number;
-  sessionsCompleted: number;
-  cardsCollected: number;
-  packsOpened: number;
-  uniqueCards: number;
-  legendaryCards: number;
-  flashcardsCreated: number;
-  quizzesCreated: number;
+  totalStudySeconds: number; sessionsCompleted: number; cardsCollected: number;
+  packsOpened: number; uniqueCards: number; legendaryCards: number;
+  flashcardsCreated: number; quizzesCreated: number;
 }
 
 function fmt(s: number) {
@@ -33,101 +28,83 @@ export default function StatsPage() {
     },
   });
 
-  const WEEKLY_GOAL = 18000; // 5 hours
-  // Use total time as a rough weekly proxy (real weekly would need date filtering)
+  const WEEKLY_GOAL = 18000;
   const weeklyProgress = stats ? Math.min((stats.totalStudySeconds / WEEKLY_GOAL) * 100, 100) : 0;
 
   const statCards = [
-    { label: "Total Study Time", value: stats ? fmt(stats.totalStudySeconds) : "—", icon: Clock, color: "text-cyan-400", glow: "hsla(190,90%,50%,0.3)" },
-    { label: "Sessions Done", value: stats?.sessionsCompleted ?? "—", icon: Calendar, color: "text-blue-400", glow: "hsla(220,90%,60%,0.3)" },
-    { label: "Packs Opened", value: stats?.packsOpened ?? "—", icon: Package, color: "text-pink-400", glow: "hsla(320,90%,60%,0.3)" },
-    { label: "Cards Collected", value: stats?.cardsCollected ?? "—", icon: BookOpen, color: "text-emerald-400", glow: "hsla(160,90%,50%,0.3)" },
-    { label: "Unique Cards", value: stats?.uniqueCards ?? "—", icon: Zap, color: "text-yellow-400", glow: "hsla(45,90%,60%,0.3)" },
-    { label: "Legendary Cards", value: stats?.legendaryCards ?? "—", icon: Star, color: "text-orange-400", glow: "hsla(25,90%,55%,0.3)" },
-    { label: "Flashcard Sets", value: stats?.flashcardsCreated ?? "—", icon: Brain, color: "text-purple-400", glow: "hsla(280,90%,60%,0.3)" },
-    { label: "Quiz Sets", value: stats?.quizzesCreated ?? "—", icon: TrendingUp, color: "text-red-400", glow: "hsla(0,90%,60%,0.3)" },
+    { label: "Total Study Time", value: stats ? fmt(stats.totalStudySeconds) : "—", icon: Clock, color: "text-teal-500" },
+    { label: "Sessions Done", value: stats?.sessionsCompleted ?? "—", icon: Calendar, color: "text-sky-500" },
+    { label: "Packs Opened", value: stats?.packsOpened ?? "—", icon: Package, color: "text-pink-500" },
+    { label: "Cards Collected", value: stats?.cardsCollected ?? "—", icon: BookOpen, color: "text-emerald-500" },
+    { label: "Unique Cards", value: stats?.uniqueCards ?? "—", icon: Zap, color: "text-amber-500" },
+    { label: "Legendary Cards", value: stats?.legendaryCards ?? "—", icon: Star, color: "text-orange-500" },
+    { label: "Flashcard Sets", value: stats?.flashcardsCreated ?? "—", icon: Brain, color: "text-violet-500" },
+    { label: "Quiz Sets", value: stats?.quizzesCreated ?? "—", icon: TrendingUp, color: "text-rose-500" },
   ];
 
   return (
     <div className="max-w-2xl mx-auto px-4 pt-6 pb-24">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-white mb-1" style={{ textShadow: "0 0 20px hsla(190,100%,70%,0.4)" }}>
-          Study Stats
-        </h1>
-        <p className="text-cyan-300/60 text-sm">Track your progress and see how far you've come.</p>
+        <h1 className="text-3xl font-bold text-sky-900 mb-1">Study Stats</h1>
+        <p className="text-teal-600/70 text-sm">Track your progress and see how far you've come.</p>
       </div>
 
       {/* Goal ring */}
       <div className="glass rounded-3xl p-6 mb-6">
         <div className="flex justify-between items-start mb-4">
           <div>
-            <div className="text-white font-semibold text-lg">Study Goal</div>
-            <div className="text-cyan-400/60 text-sm">
-              {stats ? `${fmt(stats.totalStudySeconds)} of ${fmt(WEEKLY_GOAL)}` : "Loading..."}
+            <div className="text-sky-900 font-semibold text-lg">Study Goal</div>
+            <div className="text-teal-600/60 text-sm">
+              {stats ? `${fmt(stats.totalStudySeconds)} of ${fmt(WEEKLY_GOAL)}` : "Loading…"}
             </div>
           </div>
-          <div className="text-2xl font-bold text-white">{weeklyProgress.toFixed(0)}%</div>
+          <div className="text-2xl font-bold text-sky-900">{weeklyProgress.toFixed(0)}%</div>
         </div>
-        <div className="h-3 rounded-full bg-white/5 overflow-hidden">
-          <div
-            className="h-full rounded-full transition-all duration-1000"
-            style={{
-              width: `${weeklyProgress}%`,
-              background: "linear-gradient(90deg, hsl(190,100%,50%), hsl(210,100%,60%), hsl(160,100%,50%))",
-              boxShadow: "0 0 12px hsla(190,100%,50%,0.5)",
-            }}
-          />
+        <div className="h-3 rounded-full bg-sky-100/70 overflow-hidden">
+          <div className="h-full rounded-full transition-all duration-1000"
+            style={{ width: `${weeklyProgress}%`, background: "linear-gradient(90deg, hsl(185,80%,40%), hsl(200,85%,52%), hsl(155,75%,42%))", boxShadow: "0 0 10px rgba(0,160,190,0.40)" }} />
         </div>
         {stats && stats.totalStudySeconds >= WEEKLY_GOAL && (
-          <div className="text-center text-sm text-yellow-300 mt-3 font-medium">
-            🏆 Goal reached! Keep going!
-          </div>
+          <div className="text-center text-sm text-amber-600 mt-3 font-medium">🏆 Goal reached! Keep going!</div>
         )}
       </div>
 
       {/* Stat grid */}
       {isLoading ? (
         <div className="grid grid-cols-2 gap-4">
-          {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="glass rounded-2xl p-5 h-24 animate-pulse" />
-          ))}
+          {Array.from({ length: 8 }).map((_, i) => <div key={i} className="glass rounded-2xl p-5 h-24 animate-pulse" />)}
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-4">
           {statCards.map(s => (
-            <div
-              key={s.label}
-              className="glass rounded-2xl p-5 flex flex-col gap-2 transition-all hover:scale-[1.02]"
-              style={{ boxShadow: `0 0 20px ${s.glow}` }}
-            >
+            <div key={s.label} className="glass rounded-2xl p-5 flex flex-col gap-2 transition-all hover:scale-[1.02]">
               <div className="flex items-center gap-2">
                 <s.icon size={16} className={s.color} />
-                <div className="text-xs text-cyan-400/60">{s.label}</div>
+                <div className="text-xs text-teal-600/60">{s.label}</div>
               </div>
-              <div className="text-2xl font-bold text-white leading-none">{s.value}</div>
+              <div className="text-2xl font-bold text-sky-900 leading-none">{s.value}</div>
             </div>
           ))}
         </div>
       )}
 
-      {/* Motivational */}
       {stats && stats.totalStudySeconds === 0 && (
         <div className="glass rounded-3xl p-8 text-center mt-6">
-          <div className="text-4xl mb-3">🌊</div>
-          <div className="text-white font-semibold mb-2">Ready to begin?</div>
-          <div className="text-cyan-300/60 text-sm">Start your first study session on the Timer tab!</div>
+          <div className="text-4xl mb-3">☁️</div>
+          <div className="text-sky-900 font-semibold mb-2">Ready to begin?</div>
+          <div className="text-teal-600/70 text-sm">Start your first study session on the Timer tab!</div>
         </div>
       )}
       {stats && stats.totalStudySeconds > 0 && stats.totalStudySeconds < 3600 && (
-        <div className="glass rounded-3xl p-6 text-center mt-6 border border-cyan-400/20">
-          <div className="text-white font-medium mb-1">🎴 Almost there!</div>
-          <div className="text-cyan-300/60 text-sm">Study for {fmt(3600 - stats.totalStudySeconds)} more to earn your first card pack.</div>
+        <div className="glass rounded-3xl p-6 text-center mt-6 border border-teal-300/40">
+          <div className="text-sky-900 font-medium mb-1">🎴 Almost there!</div>
+          <div className="text-teal-600/70 text-sm">Study for {fmt(3600 - stats.totalStudySeconds)} more to earn your first card pack.</div>
         </div>
       )}
       {stats && stats.legendaryCards > 0 && (
-        <div className="glass rounded-3xl p-6 text-center mt-4 border border-yellow-400/20" style={{ boxShadow: "0 0 30px hsla(45,90%,50%,0.15)" }}>
-          <div className="text-yellow-300 font-semibold text-lg mb-1">⚡ Legendary Collector!</div>
-          <div className="text-cyan-300/60 text-sm">You've collected {stats.legendaryCards} legendary card{stats.legendaryCards !== 1 ? "s" : ""}. Incredible!</div>
+        <div className="glass rounded-3xl p-6 text-center mt-4 border border-amber-300/40" style={{ boxShadow: "0 0 24px rgba(200,150,10,0.12)" }}>
+          <div className="text-amber-600 font-semibold text-lg mb-1">⚡ Legendary Collector!</div>
+          <div className="text-teal-600/70 text-sm">You've collected {stats.legendaryCards} legendary card{stats.legendaryCards !== 1 ? "s" : ""}. Incredible!</div>
         </div>
       )}
     </div>

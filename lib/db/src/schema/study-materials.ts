@@ -4,8 +4,9 @@ import { z } from "zod/v4";
 
 export const studyMaterialsTable = pgTable("study_materials", {
   id: serial("id").primaryKey(),
+  userId: text("user_id"),
   title: text("title").notNull(),
-  type: text("type").notNull(), // notes | pdf | slides | guide
+  type: text("type").notNull(),
   content: text("content").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   hasGeneratedContent: boolean("has_generated_content").notNull().default(false),
@@ -13,6 +14,7 @@ export const studyMaterialsTable = pgTable("study_materials", {
 
 export const flashcardsTable = pgTable("flashcards", {
   id: serial("id").primaryKey(),
+  userId: text("user_id"),
   materialId: integer("material_id").notNull().references(() => studyMaterialsTable.id),
   front: text("front").notNull(),
   back: text("back").notNull(),
@@ -25,6 +27,7 @@ export const flashcardsTable = pgTable("flashcards", {
 
 export const quizzesTable = pgTable("quizzes", {
   id: serial("id").primaryKey(),
+  userId: text("user_id"),
   materialId: integer("material_id").notNull().references(() => studyMaterialsTable.id),
   question: text("question").notNull(),
   options: text("options").array().notNull(),

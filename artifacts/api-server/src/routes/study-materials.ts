@@ -1,6 +1,7 @@
 import { Router, type IRouter } from "express";
 import { db, studyMaterialsTable, flashcardsTable, quizzesTable } from "@workspace/db";
-import { eq, count } from "drizzle-orm";
+import { eq, and, count } from "drizzle-orm";
+import { getAuth } from "@clerk/express";
 import {
   CreateStudyMaterialBody,
   GetStudyMaterialParams,
@@ -16,17 +17,16 @@ import { logger } from "../lib/logger";
 const router: IRouter = Router();
 
 router.get("/study-materials", async (req, res): Promise<void> => {
-  const materials = await db.select().from(studyMaterialsTable).orderBy(studyMaterialsTable.createdAt);
+  const { userId } = getAuth(req);
+  if (!userId) { res.status(401).json({ error: "Unauthorized" }); return; }
+
+  const materials = await db.select().from(studyMaterialsTable).where(eq(studyMaterialsTable.userId, userId)).orderBy(studyMaterialsTable.createdAt);
 
   const withCounts = await Promise.all(
     materials.map(async (m) => {
       const [fc] = await db.select({ count: count() }).from(flashcardsTable).where(eq(flashcardsTable.materialId, m.id));
       const [qc] = await db.select({ count: count() }).from(quizzesTable).where(eq(quizzesTable.materialId, m.id));
-      return {
-        ...m,
-        flashcardCount: Number(fc?.count ?? 0),
-        quizCount: Number(qc?.count ?? 0),
-      };
+      return { ...m, flashcardCount: Number(fc?.count ?? 0), quizCount: Number(qc?.count ?? 0) };
     })
   );
 
@@ -34,86 +34,64 @@ router.get("/study-materials", async (req, res): Promise<void> => {
 });
 
 router.post("/study-materials", async (req, res): Promise<void> => {
-  const parsed = CreateStudyMaterialBody.safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.message });
-    return;
-  }
+  const { userId } = getAuth(req);
+  if (!userId) { res.status(401).json({ error: "Unauthorized" }); return; }
 
-  const [material] = await db.insert(studyMaterialsTable).values(parsed.data).returning();
+  const parsed = CreateStudyMaterialBody.safeParse(req.body);
+  if (!parsed.success) { res.status(400).json({ error: parsed.error.message }); return; }
+
+  const [material] = await db.insert(studyMaterialsTable).values({ ...parsed.data, userId }).returning();
 
   const [fc] = await db.select({ count: count() }).from(flashcardsTable).where(eq(flashcardsTable.materialId, material.id));
   const [qc] = await db.select({ count: count() }).from(quizzesTable).where(eq(quizzesTable.materialId, material.id));
 
-  res.status(201).json(
-    GetStudyMaterialResponse.parse({
-      ...material,
-      flashcardCount: Number(fc?.count ?? 0),
-      quizCount: Number(qc?.count ?? 0),
-    })
-  );
+  res.status(201).json(GetStudyMaterialResponse.parse({ ...material, flashcardCount: Number(fc?.count ?? 0), quizCount: Number(qc?.count ?? 0) }));
 });
 
 router.get("/study-materials/:id", async (req, res): Promise<void> => {
+  const { userId } = getAuth(req);
+  if (!userId) { res.status(401).json({ error: "Unauthorized" }); return; }
+
   const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
   const params = GetStudyMaterialParams.safeParse({ id: parseInt(raw, 10) });
-  if (!params.success) {
-    res.status(400).json({ error: params.error.message });
-    return;
-  }
+  if (!params.success) { res.status(400).json({ error: params.error.message }); return; }
 
-  const [material] = await db.select().from(studyMaterialsTable).where(eq(studyMaterialsTable.id, params.data.id));
-  if (!material) {
-    res.status(404).json({ error: "Study material not found" });
-    return;
-  }
+  const [material] = await db.select().from(studyMaterialsTable).where(and(eq(studyMaterialsTable.id, params.data.id), eq(studyMaterialsTable.userId, userId)));
+  if (!material) { res.status(404).json({ error: "Study material not found" }); return; }
 
   const [fc] = await db.select({ count: count() }).from(flashcardsTable).where(eq(flashcardsTable.materialId, material.id));
   const [qc] = await db.select({ count: count() }).from(quizzesTable).where(eq(quizzesTable.materialId, material.id));
 
-  res.json(
-    GetStudyMaterialResponse.parse({
-      ...material,
-      flashcardCount: Number(fc?.count ?? 0),
-      quizCount: Number(qc?.count ?? 0),
-    })
-  );
+  res.json(GetStudyMaterialResponse.parse({ ...material, flashcardCount: Number(fc?.count ?? 0), quizCount: Number(qc?.count ?? 0) }));
 });
 
 router.delete("/study-materials/:id", async (req, res): Promise<void> => {
+  const { userId } = getAuth(req);
+  if (!userId) { res.status(401).json({ error: "Unauthorized" }); return; }
+
   const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
   const params = DeleteStudyMaterialParams.safeParse({ id: parseInt(raw, 10) });
-  if (!params.success) {
-    res.status(400).json({ error: params.error.message });
-    return;
-  }
+  if (!params.success) { res.status(400).json({ error: params.error.message }); return; }
 
-  // Delete related flashcards and quizzes first
   await db.delete(flashcardsTable).where(eq(flashcardsTable.materialId, params.data.id));
   await db.delete(quizzesTable).where(eq(quizzesTable.materialId, params.data.id));
 
-  const [deleted] = await db.delete(studyMaterialsTable).where(eq(studyMaterialsTable.id, params.data.id)).returning();
-  if (!deleted) {
-    res.status(404).json({ error: "Study material not found" });
-    return;
-  }
+  const [deleted] = await db.delete(studyMaterialsTable).where(and(eq(studyMaterialsTable.id, params.data.id), eq(studyMaterialsTable.userId, userId))).returning();
+  if (!deleted) { res.status(404).json({ error: "Study material not found" }); return; }
 
   res.sendStatus(204);
 });
 
 router.post("/study-materials/:id/generate", async (req, res): Promise<void> => {
+  const { userId } = getAuth(req);
+  if (!userId) { res.status(401).json({ error: "Unauthorized" }); return; }
+
   const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
   const params = GenerateFromMaterialParams.safeParse({ id: parseInt(raw, 10) });
-  if (!params.success) {
-    res.status(400).json({ error: params.error.message });
-    return;
-  }
+  if (!params.success) { res.status(400).json({ error: params.error.message }); return; }
 
-  const [material] = await db.select().from(studyMaterialsTable).where(eq(studyMaterialsTable.id, params.data.id));
-  if (!material) {
-    res.status(404).json({ error: "Study material not found" });
-    return;
-  }
+  const [material] = await db.select().from(studyMaterialsTable).where(and(eq(studyMaterialsTable.id, params.data.id), eq(studyMaterialsTable.userId, userId)));
+  if (!material) { res.status(404).json({ error: "Study material not found" }); return; }
 
   try {
     const prompt = `You are an expert study assistant using evidence-based learning methods (active recall, spaced repetition, retrieval practice).
@@ -129,21 +107,8 @@ ${material.content.slice(0, 3000)}
 
 Respond with valid JSON in this exact format:
 {
-  "flashcards": [
-    {
-      "front": "Question or prompt that tests recall",
-      "back": "Complete answer or explanation",
-      "category": "optional category label"
-    }
-  ],
-  "quizzes": [
-    {
-      "question": "Multiple choice question",
-      "options": ["Option A", "Option B", "Option C", "Option D"],
-      "correctIndex": 0,
-      "explanation": "Why this answer is correct"
-    }
-  ]
+  "flashcards": [{"front": "Question or prompt","back": "Complete answer","category": "optional label"}],
+  "quizzes": [{"question": "Multiple choice question","options": ["A","B","C","D"],"correctIndex": 0,"explanation": "Why correct"}]
 }`;
 
     const completion = await openai.chat.completions.create({
@@ -162,41 +127,20 @@ Respond with valid JSON in this exact format:
     const flashcards = parsed.flashcards ?? [];
     const quizzes = parsed.quizzes ?? [];
 
-    // Insert flashcards
     if (flashcards.length > 0) {
       await db.insert(flashcardsTable).values(
-        flashcards.map((f) => ({
-          materialId: material.id,
-          front: f.front,
-          back: f.back,
-          category: f.category ?? null,
-          difficulty: 3,
-        }))
+        flashcards.map((f) => ({ userId, materialId: material.id, front: f.front, back: f.back, category: f.category ?? null, difficulty: 3 }))
       );
     }
-
-    // Insert quizzes
     if (quizzes.length > 0) {
       await db.insert(quizzesTable).values(
-        quizzes.map((q) => ({
-          materialId: material.id,
-          question: q.question,
-          options: q.options,
-          correctIndex: q.correctIndex,
-          explanation: q.explanation ?? null,
-        }))
+        quizzes.map((q) => ({ userId, materialId: material.id, question: q.question, options: q.options, correctIndex: q.correctIndex, explanation: q.explanation ?? null }))
       );
     }
 
-    // Mark material as having generated content
     await db.update(studyMaterialsTable).set({ hasGeneratedContent: true }).where(eq(studyMaterialsTable.id, material.id));
 
-    res.json(
-      GenerateFromMaterialResponse.parse({
-        flashcardsGenerated: flashcards.length,
-        quizzesGenerated: quizzes.length,
-      })
-    );
+    res.json(GenerateFromMaterialResponse.parse({ flashcardsGenerated: flashcards.length, quizzesGenerated: quizzes.length }));
   } catch (err) {
     req.log.error({ err }, "Failed to generate study content");
     res.status(500).json({ error: "Failed to generate content" });

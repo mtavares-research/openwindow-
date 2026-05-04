@@ -4,10 +4,11 @@ import { z } from "zod/v4";
 
 export const studySessionsTable = pgTable("study_sessions", {
   id: serial("id").primaryKey(),
+  userId: text("user_id"),
   startedAt: timestamp("started_at", { withTimezone: true }).notNull().defaultNow(),
   endedAt: timestamp("ended_at", { withTimezone: true }),
   durationSeconds: integer("duration_seconds"),
-  status: text("status").notNull().default("active"), // active | completed
+  status: text("status").notNull().default("active"),
   packEarned: boolean("pack_earned").notNull().default(false),
 });
 

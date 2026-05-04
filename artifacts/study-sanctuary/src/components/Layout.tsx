@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode } from "react";
 import { NavigationDock } from "./NavigationDock";
 import { AudioController } from "./AudioController";
 import { MusicPlayer } from "./MusicPlayer";
@@ -8,57 +8,35 @@ interface LayoutProps {
 }
 
 export function Layout({ children }: LayoutProps) {
-  const [bubbles, setBubbles] = useState<Array<{ id: number; left: number; size: number; duration: number; delay: number }>>([]);
-
-  useEffect(() => {
-    const newBubbles = Array.from({ length: 20 }).map((_, i) => ({
-      id: i,
-      left: Math.random() * 100,
-      size: Math.random() * 40 + 10,
-      duration: Math.random() * 10 + 10,
-      delay: Math.random() * 10,
-    }));
-    setBubbles(newBubbles);
-  }, []);
-
   return (
-    <div className="min-h-[100dvh] w-full bg-background text-foreground selection:bg-primary/30">
-      {/* Fixed background layer — clipped to viewport, non-interactive */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-        <div className="caustics" />
+    <div className="min-h-[100dvh] w-full text-foreground selection:bg-primary/20">
+      {/* Decorative cloud layer — fixed, non-interactive */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        {/* Large background clouds */}
+        <div className="cloud" style={{ width: 320, height: 90, top: "6%", left: "5%", opacity: 0.55 }} />
+        <div className="cloud" style={{ width: 200, height: 60, top: "7%", left: "6%", opacity: 0.45 }} />
+        <div className="cloud" style={{ width: 260, height: 75, top: "18%", right: "8%", opacity: 0.50 }} />
+        <div className="cloud" style={{ width: 160, height: 50, top: "19%", right: "9%", opacity: 0.40 }} />
+        <div className="cloud" style={{ width: 380, height: 100, top: "38%", left: "-2%", opacity: 0.35 }} />
+        <div className="cloud" style={{ width: 220, height: 65, top: "39%", left: "-1%", opacity: 0.30 }} />
+        <div className="cloud" style={{ width: 300, height: 85, bottom: "22%", right: "4%", opacity: 0.38 }} />
+        <div className="cloud" style={{ width: 180, height: 55, bottom: "23%", right: "5%", opacity: 0.28 }} />
 
-        {bubbles.map((b) => (
-          <div
-            key={b.id}
-            className="bubble"
-            style={{
-              left: `${b.left}vw`,
-              width: `${b.size}px`,
-              height: `${b.size}px`,
-              animationDuration: `${b.duration}s`,
-              animationDelay: `${b.delay}s`,
-            }}
-          />
-        ))}
+        {/* Subtle light bloom at top */}
+        <div style={{
+          position: "absolute",
+          top: 0, left: "30%", right: "30%",
+          height: 180,
+          background: "radial-gradient(ellipse at 50% 0%, rgba(255,255,255,0.55) 0%, transparent 75%)",
+        }} />
 
-        <div className="fish fish-right" style={{ top: "20vh", width: "80px", height: "40px" }}>
-          <svg viewBox="0 0 100 50" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M10 25 C 20 10, 80 10, 90 25 C 80 40, 20 40, 10 25 Z" fill="rgba(100,200,255,0.4)" />
-            <path d="M10 25 L 0 15 L 0 35 Z" fill="rgba(100,200,255,0.4)" />
-          </svg>
-        </div>
-        <div className="fish fish-left" style={{ top: "55vh", width: "60px", height: "30px" }}>
-          <svg viewBox="0 0 100 50" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M90 25 C 80 10, 20 10, 10 25 C 20 40, 80 40, 90 25 Z" fill="rgba(100,255,200,0.4)" />
-            <path d="M90 25 L 100 15 L 100 35 Z" fill="rgba(100,255,200,0.4)" />
-          </svg>
-        </div>
-        <div className="fish fish-right" style={{ top: "80vh", width: "40px", height: "20px", animationDuration: "30s", animationDelay: "5s" }}>
-          <svg viewBox="0 0 100 50" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M10 25 C 20 10, 80 10, 90 25 C 80 40, 20 40, 10 25 Z" fill="rgba(150,220,255,0.3)" />
-            <path d="M10 25 L 0 15 L 0 35 Z" fill="rgba(150,220,255,0.3)" />
-          </svg>
-        </div>
+        {/* Green ground hint at the very bottom */}
+        <div style={{
+          position: "absolute",
+          bottom: 0, left: 0, right: 0,
+          height: 100,
+          background: "linear-gradient(to top, rgba(120, 195, 100, 0.18) 0%, transparent 100%)",
+        }} />
       </div>
 
       {/* Scrollable content */}

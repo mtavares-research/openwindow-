@@ -13,6 +13,8 @@ import CollectionPage from "@/pages/collection";
 import StudyToolsPage from "@/pages/study-tools";
 import StatsPage from "@/pages/stats";
 import LandingPage from "@/pages/landing";
+import ProfilePage from "@/pages/profile";
+import FriendsPage from "@/pages/friends";
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, staleTime: 30000 } },
@@ -42,41 +44,41 @@ const clerkAppearance = {
     logoImageUrl: `${window.location.origin}${basePath}/logo.svg`,
   },
   variables: {
-    colorPrimary: "#00d4ff",
-    colorForeground: "#e0f7ff",
-    colorMutedForeground: "#7ec8e3",
-    colorDanger: "#ff6b8a",
-    colorBackground: "#051a2a",
-    colorInput: "#0a2a3d",
-    colorInputForeground: "#e0f7ff",
-    colorNeutral: "#1a4a6a",
-    fontFamily: '"Geist", "Inter", system-ui, sans-serif',
+    colorPrimary: "#0097a7",
+    colorForeground: "#0d3340",
+    colorMutedForeground: "#3a7a8a",
+    colorDanger: "#d32f2f",
+    colorBackground: "#dff5fb",
+    colorInput: "rgba(255,255,255,0.90)",
+    colorInputForeground: "#0d3340",
+    colorNeutral: "#8ab8c8",
+    fontFamily: '"Inter", "Segoe UI", system-ui, sans-serif',
     borderRadius: "0.875rem",
   },
   elements: {
     rootBox: "w-full flex justify-center",
-    cardBox: "w-[420px] max-w-full overflow-hidden rounded-2xl shadow-2xl",
+    cardBox: "w-[420px] max-w-full overflow-hidden rounded-2xl shadow-xl",
     card: "!shadow-none !border-0 !rounded-none",
     footer: "!shadow-none !border-0 !rounded-none",
-    headerTitle: "text-white font-bold",
-    headerSubtitle: "text-cyan-300/70",
-    socialButtonsBlockButtonText: "text-white font-medium",
-    formFieldLabel: "text-cyan-200/80 text-sm",
-    footerActionLink: "text-cyan-400 hover:text-cyan-200",
-    footerActionText: "text-cyan-300/50",
-    dividerText: "text-cyan-400/40",
-    identityPreviewEditButton: "text-cyan-400",
-    formFieldSuccessText: "text-emerald-400",
-    alertText: "text-red-300",
+    headerTitle: "font-bold",
+    headerSubtitle: "",
+    socialButtonsBlockButtonText: "font-medium",
+    formFieldLabel: "text-sm font-medium",
+    footerActionLink: "font-medium",
+    footerActionText: "",
+    dividerText: "",
+    identityPreviewEditButton: "",
+    formFieldSuccessText: "",
+    alertText: "",
     logoBox: "flex justify-center",
     logoImage: "w-10 h-10",
-    socialButtonsBlockButton: "border border-cyan-400/20 hover:border-cyan-400/50",
+    socialButtonsBlockButton: "",
     formButtonPrimary: "font-semibold",
-    formFieldInput: "text-white",
-    footerAction: "border-t border-cyan-400/10",
-    dividerLine: "bg-cyan-400/20",
-    alert: "border border-red-400/30",
-    otpCodeFieldInput: "text-white text-center",
+    formFieldInput: "",
+    footerAction: "",
+    dividerLine: "",
+    alert: "",
+    otpCodeFieldInput: "text-center",
     formFieldRow: "gap-2",
     main: "gap-5",
   },
@@ -101,13 +103,9 @@ function SignUpPage() {
 function HomeRedirect() {
   return (
     <>
-      <Show when="signed-in">
-        <Redirect to="/timer" />
-      </Show>
+      <Show when="signed-in"><Redirect to="/timer" /></Show>
       <Show when="signed-out">
-        <Layout>
-          <LandingPage />
-        </Layout>
+        <Layout><LandingPage /></Layout>
       </Show>
     </>
   );
@@ -116,23 +114,17 @@ function HomeRedirect() {
 function ProtectedRoute({ component: Component }: { component: React.ComponentType }) {
   return (
     <>
-      <Show when="signed-in">
-        <Layout>
-          <Component />
-        </Layout>
-      </Show>
-      <Show when="signed-out">
-        <Redirect to="/sign-in" />
-      </Show>
+      <Show when="signed-in"><Layout><Component /></Layout></Show>
+      <Show when="signed-out"><Redirect to="/sign-in" /></Show>
     </>
   );
 }
 
 function AuthPage({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-[100dvh] w-full bg-background text-foreground relative">
-      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-        <div className="caustics" />
+    <div className="min-h-[100dvh] w-full text-foreground relative">
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        <div style={{ position: "absolute", top: 0, left: "25%", right: "25%", height: 220, background: "radial-gradient(ellipse at 50% 0%, rgba(255,255,255,0.60) 0%, transparent 75%)" }} />
       </div>
       <div className="relative z-10">{children}</div>
     </div>
@@ -143,24 +135,19 @@ function ClerkQueryClientCacheInvalidator() {
   const { addListener } = useClerk();
   const qc = useQueryClient();
   const prevUserIdRef = useRef<string | null | undefined>(undefined);
-
   useEffect(() => {
     const unsub = addListener(({ user }) => {
       const userId = user?.id ?? null;
-      if (prevUserIdRef.current !== undefined && prevUserIdRef.current !== userId) {
-        qc.clear();
-      }
+      if (prevUserIdRef.current !== undefined && prevUserIdRef.current !== userId) qc.clear();
       prevUserIdRef.current = userId;
     });
     return unsub;
   }, [addListener, qc]);
-
   return null;
 }
 
 function ClerkProviderWithRoutes() {
   const [, setLocation] = useLocation();
-
   return (
     <ClerkProvider
       publishableKey={clerkPubKey!}
@@ -169,12 +156,8 @@ function ClerkProviderWithRoutes() {
       signInUrl={`${basePath}/sign-in`}
       signUpUrl={`${basePath}/sign-up`}
       localization={{
-        signIn: {
-          start: { title: "Welcome back", subtitle: "Sign in to your Study Sanctuary" },
-        },
-        signUp: {
-          start: { title: "Create your sanctuary", subtitle: "Start earning cards for every study session" },
-        },
+        signIn: { start: { title: "Welcome back", subtitle: "Sign in to your Study Sanctuary" } },
+        signUp: { start: { title: "Create your sanctuary", subtitle: "Earn cards for every study session" } },
       }}
       routerPush={(to) => setLocation(stripBase(to))}
       routerReplace={(to) => setLocation(stripBase(to), { replace: true })}
@@ -184,24 +167,14 @@ function ClerkProviderWithRoutes() {
         <TooltipProvider>
           <Switch>
             <Route path="/" component={HomeRedirect} />
-            <Route path="/sign-in/*?">
-              <AuthPage><SignInPage /></AuthPage>
-            </Route>
-            <Route path="/sign-up/*?">
-              <AuthPage><SignUpPage /></AuthPage>
-            </Route>
-            <Route path="/timer">
-              <ProtectedRoute component={TimerPage} />
-            </Route>
-            <Route path="/collection">
-              <ProtectedRoute component={CollectionPage} />
-            </Route>
-            <Route path="/study-tools">
-              <ProtectedRoute component={StudyToolsPage} />
-            </Route>
-            <Route path="/stats">
-              <ProtectedRoute component={StatsPage} />
-            </Route>
+            <Route path="/sign-in/*?"><AuthPage><SignInPage /></AuthPage></Route>
+            <Route path="/sign-up/*?"><AuthPage><SignUpPage /></AuthPage></Route>
+            <Route path="/timer"><ProtectedRoute component={TimerPage} /></Route>
+            <Route path="/collection"><ProtectedRoute component={CollectionPage} /></Route>
+            <Route path="/study-tools"><ProtectedRoute component={StudyToolsPage} /></Route>
+            <Route path="/stats"><ProtectedRoute component={StatsPage} /></Route>
+            <Route path="/profile"><ProtectedRoute component={ProfilePage} /></Route>
+            <Route path="/friends"><ProtectedRoute component={FriendsPage} /></Route>
             <Route component={NotFound} />
           </Switch>
           <Toaster />
