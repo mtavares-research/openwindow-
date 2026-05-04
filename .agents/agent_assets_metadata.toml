@@ -1,0 +1,8 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "k_iMzoSI9z4q_AiP4JJxg"
+uri = "file://study-sanctuary.tar.gz"
+type = "unspecified"
+title = "Study Sanctuary — VS Code Export"
