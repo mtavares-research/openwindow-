@@ -230,13 +230,6 @@ export default function TimerPage() {
       {/* Controls */}
       <div className="flex items-center gap-5">
         <button
-          onClick={resetTimer}
-          className="glass p-3 rounded-full text-cyan-300/70 hover:text-white hover:scale-110 transition-all"
-        >
-          <RotateCcw size={20} />
-        </button>
-
-        <button
           onClick={isRunning ? pauseTimer : startTimer}
           disabled={startSession.isPending || stopSession.isPending}
           className="glass-button px-12 py-4 rounded-full flex items-center gap-3 text-lg font-semibold text-white transition-all hover:scale-105 active:scale-95 disabled:opacity-60"
@@ -245,11 +238,17 @@ export default function TimerPage() {
           {isRunning ? <Pause size={24} /> : <Play size={24} />}
           {isRunning ? "Pause" : "Study"}
         </button>
-
-        <button className="glass p-3 rounded-full text-cyan-300/30 cursor-default">
-          <Zap size={20} />
-        </button>
       </div>
+
+      {/* Reset button — explicit & separate */}
+      <button
+        onClick={resetTimer}
+        disabled={elapsed === 0 && !isRunning}
+        className="flex items-center gap-2 glass px-5 py-2.5 rounded-full text-sm font-medium text-cyan-300/80 hover:text-white hover:scale-105 active:scale-95 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+      >
+        <RotateCcw size={15} />
+        Reset Timer
+      </button>
 
       {/* Quick stats */}
       <div className="flex gap-3 flex-wrap justify-center">
