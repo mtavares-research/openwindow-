@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useUser } from "@clerk/react";
 import { Edit2, Save, X, Sparkles, Gift } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { demoUser } from "@/lib/demoUser";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -22,7 +22,6 @@ const AVATAR_COLORS = [
 ];
 
 export default function ProfilePage() {
-  const { user } = useUser();
   const qc = useQueryClient();
   const { toast } = useToast();
   const [editing, setEditing] = useState(false);
@@ -59,7 +58,7 @@ export default function ProfilePage() {
     onError: (e: Error) => toast({ title: "Error", description: e.message, variant: "destructive" }),
   });
 
-  const initials = (user?.fullName ?? user?.primaryEmailAddress?.emailAddress ?? "?").slice(0, 2).toUpperCase();
+  const initials = demoUser.fullName.slice(0, 2).toUpperCase();
 
   if (isLoading) return <div className="flex items-center justify-center min-h-[60vh]"><div className="glass rounded-3xl p-8 text-foreground/60">Loading profile…</div></div>;
 
@@ -74,7 +73,7 @@ export default function ProfilePage() {
             className="w-24 h-24 rounded-full flex items-center justify-center text-white font-bold text-3xl shadow-lg"
             style={{ background: `radial-gradient(circle at 35% 35%, ${lighten(form.avatarColor)}, ${form.avatarColor})`, boxShadow: `0 4px 20px ${form.avatarColor}66` }}
           >
-            {user?.imageUrl ? <img src={user.imageUrl} alt="avatar" className="w-full h-full rounded-full object-cover" /> : initials}
+            {initials}
           </div>
         </div>
 
@@ -130,7 +129,7 @@ export default function ProfilePage() {
             <div className="text-xl font-bold text-sky-900">{profile?.displayName ?? "No display name"}</div>
             {profile?.username && <div className="text-sm text-teal-600 font-mono">@{profile.username}</div>}
             {profile?.bio && <div className="text-sm text-foreground/70 mt-1">{profile.bio}</div>}
-            <div className="text-xs text-foreground/40 mt-1">{user?.primaryEmailAddress?.emailAddress}</div>
+            <div className="text-xs text-foreground/40 mt-1">{demoUser.email}</div>
             <button onClick={() => setEditing(true)} className="mt-3 glass px-4 py-2 rounded-xl flex items-center gap-2 text-sm font-medium text-sky-700 hover:text-sky-900 mx-auto">
               <Edit2 size={13} /> Edit Profile
             </button>

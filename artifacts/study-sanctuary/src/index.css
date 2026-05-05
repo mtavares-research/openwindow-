@@ -1,74 +1,8 @@
-@layer theme, base, clerk, components, utilities;
-@import "tailwindcss";
-@import "tw-animate-css";
-@plugin "@tailwindcss/typography";
-
-@custom-variant dark (&:is(.dark *));
-
-@theme inline {
-  --color-background: hsl(var(--background));
-  --color-foreground: hsl(var(--foreground));
-  --color-border: hsl(var(--border));
-  --color-input: hsl(var(--input));
-  --color-ring: hsl(var(--ring));
-
-  --color-card: hsl(var(--card));
-  --color-card-foreground: hsl(var(--card-foreground));
-  --color-card-border: hsl(var(--card-border));
-
-  --color-popover: hsl(var(--popover));
-  --color-popover-foreground: hsl(var(--popover-foreground));
-  --color-popover-border: hsl(var(--popover-border));
-
-  --color-primary: hsl(var(--primary));
-  --color-primary-foreground: hsl(var(--primary-foreground));
-  --color-primary-border: var(--primary-border);
-
-  --color-secondary: hsl(var(--secondary));
-  --color-secondary-foreground: hsl(var(--secondary-foreground));
-  --color-secondary-border: var(--secondary-border);
-
-  --color-muted: hsl(var(--muted));
-  --color-muted-foreground: hsl(var(--muted-foreground));
-  --color-muted-border: var(--muted-border);
-
-  --color-accent: hsl(var(--accent));
-  --color-accent-foreground: hsl(var(--accent-foreground));
-  --color-accent-border: var(--accent-border);
-
-  --color-destructive: hsl(var(--destructive));
-  --color-destructive-foreground: hsl(var(--destructive-foreground));
-  --color-destructive-border: var(--destructive-border);
-
-  --color-chart-1: hsl(var(--chart-1));
-  --color-chart-2: hsl(var(--chart-2));
-  --color-chart-3: hsl(var(--chart-3));
-  --color-chart-4: hsl(var(--chart-4));
-  --color-chart-5: hsl(var(--chart-5));
-
-  --color-sidebar: hsl(var(--sidebar));
-  --color-sidebar-foreground: hsl(var(--sidebar-foreground));
-  --color-sidebar-border: hsl(var(--sidebar-border));
-  --color-sidebar-primary: hsl(var(--sidebar-primary));
-  --color-sidebar-primary-foreground: hsl(var(--sidebar-primary-foreground));
-  --color-sidebar-primary-border: var(--sidebar-primary-border);
-  --color-sidebar-accent: hsl(var(--sidebar-accent));
-  --color-sidebar-accent-foreground: hsl(var(--sidebar-accent-foreground));
-  --color-sidebar-accent-border: var(--sidebar-accent-border);
-  --color-sidebar-ring: hsl(var(--sidebar-ring));
-
-  --font-sans: var(--app-font-sans);
-  --font-serif: var(--app-font-serif);
-  --font-mono: var(--app-font-mono);
-
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
-  /* Frutiger Aero Light — bright sky & glass */
   --background: 195 65% 88%;
   --foreground: 200 80% 12%;
 
@@ -93,9 +27,11 @@
 
   --primary: 188 72% 38%;
   --primary-foreground: 0 0% 100%;
+  --primary-border: 187 78% 32%;
 
   --secondary: 195 50% 88% / 0.8;
   --secondary-foreground: 200 70% 18%;
+  --secondary-border: 194 46% 76%;
 
   --muted: 195 40% 92% / 0.80;
   --muted-foreground: 200 40% 40%;
@@ -105,6 +41,7 @@
 
   --destructive: 355 72% 48%;
   --destructive-foreground: 0 0% 100%;
+  --destructive-border: 355 68% 38%;
 
   --input: 0 0% 100% / 0.75;
   --ring: 188 75% 42%;
@@ -124,6 +61,7 @@
   --shadow: 0 4px 16px rgba(80, 160, 200, 0.15);
   --shadow-md: 0 6px 20px rgba(80, 160, 200, 0.18);
   --shadow-lg: 0 8px 30px rgba(80, 160, 200, 0.22);
+
   --shadow-xl: 0 12px 40px rgba(80, 160, 200, 0.28);
 }
 
@@ -149,13 +87,18 @@
   }
 }
 
-/* ─── Glassmorphism — light / Frutiger Aero style ─── */
 .glass {
-  background: rgba(255, 255, 255, 0.58);
+  position: relative;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.76), rgba(235, 252, 255, 0.44)),
+    rgba(255, 255, 255, 0.58);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
   border: 1px solid rgba(255, 255, 255, 0.88);
-  box-shadow: 0 4px 24px rgba(80, 160, 200, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.96);
+  box-shadow:
+    0 10px 34px rgba(55, 135, 170, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.96),
+    inset 0 -1px 0 rgba(90, 170, 190, 0.08);
   color: hsl(var(--foreground));
 }
 
@@ -184,16 +127,14 @@
   transform: translateY(-1px);
 }
 
-/* ─── Decorative cloud shapes behind layout ─── */
 .cloud {
   position: absolute;
   border-radius: 50px;
-  background: rgba(255, 255, 255, 0.70);
-  box-shadow: 0 4px 20px rgba(180, 220, 240, 0.30);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.74), rgba(255, 255, 255, 0.30));
+  box-shadow: 0 10px 30px rgba(180, 220, 240, 0.22), inset 0 1px 0 rgba(255,255,255,0.86);
   pointer-events: none;
 }
 
-/* ─── Card Rarities ─── */
 .card-common {
   box-shadow: 0 4px 12px rgba(100, 140, 160, 0.20);
 }
@@ -250,7 +191,9 @@
 .card-flip-front, .card-flip-back { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
 .card-flip-back { transform: rotateY(180deg); }
 
-/* ─── Bubble / fish stubs kept for compatibility ─── */
-.bubble { display: none; }
-.fish  { display: none; }
-.caustics { display: none; }
+@media (max-width: 640px) {
+  .cloud {
+    transform: scale(0.82);
+    transform-origin: center;
+  }
+}

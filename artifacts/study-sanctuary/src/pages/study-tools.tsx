@@ -88,7 +88,7 @@ export default function StudyToolsPage() {
     return (
       <div className="max-w-lg mx-auto px-4 pt-6 pb-24 flex flex-col gap-6">
         <div className="flex items-center gap-3">
-          <button onClick={() => setView("list")} className="glass p-2 rounded-full text-teal-600"><RotateCcw size={18} /></button>
+          <button onClick={() => { audioSystem.playClick(); setView("list"); }} className="glass p-2 rounded-full text-teal-600"><RotateCcw size={18} /></button>
           <h1 className="text-xl font-bold text-sky-900">Flashcards</h1>
           <div className="ml-auto text-sm text-teal-600/60">{flashcards ? `${cardIndex + 1} / ${flashcards.length}` : "…"}</div>
         </div>
@@ -143,7 +143,7 @@ export default function StudyToolsPage() {
     return (
       <div className="max-w-lg mx-auto px-4 pt-6 pb-24 flex flex-col gap-6">
         <div className="flex items-center gap-3">
-          <button onClick={() => setView("list")} className="glass p-2 rounded-full text-teal-600"><RotateCcw size={18} /></button>
+          <button onClick={() => { audioSystem.playClick(); setView("list"); }} className="glass p-2 rounded-full text-teal-600"><RotateCcw size={18} /></button>
           <h1 className="text-xl font-bold text-sky-900">Quiz</h1>
           <div className="ml-auto text-sm text-teal-600/60">{quizQuestions ? `${quizIndex + 1} / ${quizQuestions.length}` : "…"}</div>
         </div>
@@ -164,8 +164,8 @@ export default function StudyToolsPage() {
             <div className="text-2xl font-bold text-sky-900">Quiz Complete!</div>
             <div className="text-teal-600 font-semibold">{score} / {quizQuestions.length} correct</div>
             <div className="text-sm text-teal-600/60">{score === quizQuestions.length ? "Perfect score!" : "Keep studying!"}</div>
-            <button onClick={() => { setQuizIndex(0); setSelected(null); setScore(0); setQuizDone(false); }} className="glass-button px-8 py-3 rounded-full font-semibold w-full">Retake Quiz</button>
-            <button onClick={() => setView("list")} className="glass px-8 py-2 rounded-full text-teal-700 font-medium w-full">Back</button>
+            <button onClick={() => { audioSystem.playClick(); setQuizIndex(0); setSelected(null); setScore(0); setQuizDone(false); }} className="glass-button px-8 py-3 rounded-full font-semibold w-full">Retake Quiz</button>
+            <button onClick={() => { audioSystem.playClick(); setView("list"); }} className="glass px-8 py-2 rounded-full text-teal-700 font-medium w-full">Back</button>
           </div>
         ) : (
           <>
@@ -217,7 +217,7 @@ export default function StudyToolsPage() {
     <div className="max-w-2xl mx-auto px-4 pt-6 pb-24">
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-sky-900 mb-1">Study Tools</h1>
-        <p className="text-teal-600/70 text-sm">Upload or paste notes and get AI-generated flashcards & quizzes.</p>
+        <p className="text-teal-600/70 text-sm">Let's get working!</p>
       </div>
 
       <div className="flex gap-3 mb-4">
@@ -226,7 +226,7 @@ export default function StudyToolsPage() {
           onDragOver={e => { e.preventDefault(); setDragOver(true); }}
           onDragLeave={() => setDragOver(false)}
           onDrop={e => { e.preventDefault(); setDragOver(false); const f = e.dataTransfer.files[0]; if (f) handleFile(f); }}
-          onClick={() => fileInputRef.current?.click()}
+          onClick={() => { audioSystem.playClick(); fileInputRef.current?.click(); }}
         >
           <input ref={fileInputRef} type="file" accept=".txt,.md" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) handleFile(f); e.target.value = ""; }} />
           {isUploading ? <Loader2 size={28} className="animate-spin text-teal-500" /> : <Upload size={28} className="text-teal-500/70" />}
@@ -236,7 +236,7 @@ export default function StudyToolsPage() {
           </div>
         </div>
 
-        <button onClick={() => setShowTextInput(t => !t)}
+        <button onClick={() => { audioSystem.playClick(); setShowTextInput(t => !t); }}
           className={`glass rounded-3xl p-6 flex flex-col items-center gap-3 cursor-pointer border-2 border-dashed transition-all w-32 ${showTextInput ? "border-teal-400/60 bg-teal-50/30" : "border-teal-300/30 hover:border-teal-400/50"}`}>
           <FileText size={28} className="text-teal-500/70" />
           <div className="text-sky-900 font-medium text-sm text-center">Paste text</div>
@@ -251,11 +251,11 @@ export default function StudyToolsPage() {
             placeholder="Paste your study notes here… AI will generate flashcards and quiz questions."
             rows={6} className="glass w-full rounded-xl px-4 py-3 text-foreground placeholder:text-foreground/40 outline-none text-sm resize-none focus:ring-2 focus:ring-primary/25" />
           <div className="flex gap-3">
-            <button onClick={handleTextSubmit} disabled={!textInput.trim() || isUploading}
+            <button onClick={() => { audioSystem.playClick(); handleTextSubmit(); }} disabled={!textInput.trim() || isUploading}
               className="glass-button flex-1 py-2.5 rounded-xl font-medium flex items-center justify-center gap-2 disabled:opacity-40">
               <Sparkles size={16} /> Generate with AI
             </button>
-            <button onClick={() => setShowTextInput(false)} className="glass px-4 py-2.5 rounded-xl text-teal-700">Cancel</button>
+            <button onClick={() => { audioSystem.playClick(); setShowTextInput(false); }} className="glass px-4 py-2.5 rounded-xl text-teal-700">Cancel</button>
           </div>
         </div>
       )}
@@ -277,7 +277,7 @@ export default function StudyToolsPage() {
                   <div className="text-sky-900 font-semibold text-lg">{m.title}</div>
                   <div className="text-teal-600/60 text-sm mt-0.5 line-clamp-2">{m.content.slice(0, 120)}{m.content.length > 120 ? "…" : ""}</div>
                 </div>
-                <button onClick={() => deleteMaterial.mutate(m.id)} className="glass p-2 rounded-full text-red-400/60 hover:text-red-500 ml-3 flex-shrink-0 transition-colors">
+                <button onClick={() => { audioSystem.playClick(); deleteMaterial.mutate(m.id); }} className="glass p-2 rounded-full text-red-400/60 hover:text-red-500 ml-3 flex-shrink-0 transition-colors">
                   <Trash2 size={14} />
                 </button>
               </div>
@@ -302,7 +302,7 @@ export default function StudyToolsPage() {
                   <ChevronRight size={16} /> Quiz
                 </button>
                 {m.hasGeneratedContent && (
-                  <button onClick={() => generateContent.mutate(m.id)} disabled={generateContent.isPending}
+                  <button onClick={() => { audioSystem.playClick(); generateContent.mutate(m.id); }} disabled={generateContent.isPending}
                     className="glass p-2.5 rounded-xl text-teal-600/60 hover:text-teal-700" title="Regenerate content">
                     <Sparkles size={16} />
                   </button>

@@ -3,7 +3,6 @@ class AudioSystem {
   private masterGain: GainNode | null = null;
   private ambientNodes: AudioNode[] = [];
   private isRunning = false;
-  private bubbleTimeout: ReturnType<typeof setTimeout> | null = null;
 
   private getCtx(): AudioContext {
     if (!this.ctx) {
@@ -27,7 +26,6 @@ class AudioSystem {
     if (ctx.state === "suspended") ctx.resume();
     this.isRunning = true;
 
-    // Underwater noise (low rumble)
     const bufferSize = ctx.sampleRate * 4;
     const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
     const data = noiseBuffer.getChannelData(0);
@@ -46,7 +44,6 @@ class AudioSystem {
     noise.start();
     this.ambientNodes.push(noise);
 
-    // Slow oscillating sine (deep hum)
     const osc1 = ctx.createOscillator();
     osc1.type = "sine";
     osc1.frequency.value = 55;
@@ -65,7 +62,6 @@ class AudioSystem {
     lfo1.start();
     this.ambientNodes.push(osc1, lfo1);
 
-    // Higher harmonic
     const osc2 = ctx.createOscillator();
     osc2.type = "sine";
     osc2.frequency.value = 110;
@@ -84,44 +80,17 @@ class AudioSystem {
     lfo2.start();
     this.ambientNodes.push(osc2, lfo2);
 
-    this.scheduleBubbles();
-  }
-
-  private scheduleBubbles() {
-    if (!this.isRunning) return;
-    const delay = 800 + Math.random() * 3000;
-    this.bubbleTimeout = setTimeout(() => {
-      if (!this.isRunning) return;
-      this.playBubble();
-      this.scheduleBubbles();
-    }, delay);
-  }
-
-  private playBubble() {
-    try {
-      const ctx = this.getCtx();
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = "sine";
-      const baseFreq = 600 + Math.random() * 800;
-      osc.frequency.setValueAtTime(baseFreq, ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(baseFreq * 1.8, ctx.currentTime + 0.08);
-      gain.gain.setValueAtTime(0, ctx.currentTime);
-      gain.gain.linearRampToValueAtTime(0.06, ctx.currentTime + 0.01);
-      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.12);
-      osc.connect(gain);
-      gain.connect(this.masterGain!);
-      osc.start(ctx.currentTime);
-      osc.stop(ctx.currentTime + 0.15);
-    } catch {}
   }
 
   stopAmbient() {
     this.isRunning = false;
-    if (this.bubbleTimeout) clearTimeout(this.bubbleTimeout);
     this.ambientNodes.forEach((n) => {
-      try { (n as AudioScheduledSourceNode).stop(); } catch {}
-      try { n.disconnect(); } catch {}
+      try {
+        (n as AudioScheduledSourceNode).stop();
+      } catch {}
+      try {
+        n.disconnect();
+      } catch {}
     });
     this.ambientNodes = [];
   }

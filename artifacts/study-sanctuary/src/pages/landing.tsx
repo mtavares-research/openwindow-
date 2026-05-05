@@ -6,18 +6,17 @@ export default function LandingPage() {
   const [, setLocation] = useLocation();
 
   return (
-    <div className="min-h-[100dvh] flex flex-col items-center justify-center px-4 py-12 gap-10">
+    <div className="min-h-[100dvh] flex flex-col items-center justify-center px-4 pb-36 pt-16 gap-8 sm:gap-10">
       {/* Hero */}
       <div className="text-center max-w-lg">
         <div className="flex items-center justify-center gap-3 mb-4">
           <img src={`${import.meta.env.BASE_URL}logo.svg`} alt="logo" className="w-14 h-14" />
-          <h1 className="text-5xl font-bold text-sky-900 tracking-tight" style={{ textShadow: "0 2px 8px rgba(0,150,180,0.18)" }}>
-            Study Sanctuary
+          <h1 className="text-4xl font-bold text-sky-900 tracking-tight sm:text-5xl" style={{ textShadow: "0 2px 8px rgba(0,150,180,0.18)" }}>
+            OpenWindow!
           </h1>
         </div>
         <p className="text-teal-700/80 text-lg leading-relaxed">
-          A futuristic study space. Earn trading cards for every hour you study.
-          AI-powered flashcards & quizzes. Frutiger Aero vibes included.
+          A glossy study space with focus timers, card rewards, flashcards, quizzes, and soft Frutiger Aero calm.
         </p>
       </div>
 
@@ -26,7 +25,7 @@ export default function LandingPage() {
         {[
           { icon: Clock, label: "Study Timer" },
           { icon: Gift, label: "Card Pack Rewards" },
-          { icon: Brain, label: "AI Flashcards & Quizzes" },
+          { icon: Brain, label: "Flashcards & Quizzes" },
           { icon: Archive, label: "Card Collection" },
           { icon: Music, label: "Music Player" },
           { icon: BookOpen, label: "Progress Tracking" },
@@ -41,31 +40,17 @@ export default function LandingPage() {
       {/* CTA */}
       <div className="flex flex-col sm:flex-row gap-4 w-full max-w-xs">
         <button
-          onClick={() => { audioSystem.playClick(); setLocation("/sign-up"); }}
+          onClick={() => { audioSystem.playClick(); setLocation("/timer"); }}
           className="glass-button flex-1 py-4 rounded-2xl font-bold text-lg hover:scale-105 transition-all"
         >
           Get Started
         </button>
         <button
-          onClick={() => { audioSystem.playClick(); setLocation("/sign-in"); }}
+          onClick={() => { audioSystem.playClick(); setLocation("/profile"); }}
           className="glass flex-1 py-4 rounded-2xl text-teal-700 font-semibold text-lg hover:scale-105 transition-all"
         >
-          Sign In
+          Profile
         </button>
-      </div>
-
-      {/* Preview cards */}
-      <div className="grid grid-cols-3 gap-3 max-w-xs opacity-70">
-        {[
-          { color: "rgba(220,170,20,0.25)", border: "rgba(220,170,20,0.50)", label: "Legendary" },
-          { color: "rgba(150,80,220,0.20)", border: "rgba(150,80,220,0.45)", label: "Holographic" },
-          { color: "rgba(30,120,200,0.18)", border: "rgba(30,120,200,0.40)", label: "Rare" },
-        ].map((c) => (
-          <div key={c.label} className="rounded-2xl aspect-[3/4] flex items-end justify-center pb-2 text-xs font-semibold"
-            style={{ background: c.color, border: `1px solid ${c.border}` }}>
-            <span className="text-sky-900/60">{c.label}</span>
-          </div>
-        ))}
       </div>
     </div>
   );

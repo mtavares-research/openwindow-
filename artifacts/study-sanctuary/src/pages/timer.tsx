@@ -92,10 +92,10 @@ export default function TimerPage() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[calc(100dvh-96px)] px-4 gap-8">
+    <div className="flex min-h-[100dvh] flex-col items-center justify-center gap-5 px-4 pb-36 pt-20 sm:gap-7 sm:pb-32 sm:pt-16">
       {/* Pack available banner */}
       {packs > 0 && !showPackReveal && (
-        <div className="glass border border-amber-300/60 rounded-2xl px-6 py-3 flex items-center gap-3"
+        <div className="glass border border-amber-300/60 rounded-2xl px-5 py-3 flex items-center gap-3"
           style={{ boxShadow: "0 0 28px rgba(200,150,10,0.20)", animation: "legendaryGlow 2s infinite alternate" }}>
           <Gift size={20} className="text-amber-500" />
           <span className="text-amber-700 font-semibold">{packs} card pack{packs > 1 ? "s" : ""} ready!</span>
@@ -108,7 +108,7 @@ export default function TimerPage() {
 
       {/* Timer ring */}
       <div className="relative flex items-center justify-center">
-        <svg width={300} height={300} className="drop-shadow-xl">
+        <svg width={280} height={280} viewBox="0 0 300 300" className="drop-shadow-xl sm:h-[300px] sm:w-[300px]">
           <circle cx={150} cy={150} r={radius} fill="none" stroke="rgba(0,170,200,0.10)" strokeWidth={16} />
           <circle cx={150} cy={150} r={radius} fill="none" stroke="rgba(0,190,220,0.18)" strokeWidth={26}
             strokeDasharray={circumference} strokeDashoffset={ringOffset} strokeLinecap="round"
@@ -149,20 +149,20 @@ export default function TimerPage() {
       </div>
 
       <button onClick={resetTimer} disabled={elapsed === 0 && !isRunning}
-        className="flex items-center gap-2 glass px-5 py-2.5 rounded-full text-sm font-medium text-teal-600/80 hover:text-sky-900 hover:scale-105 active:scale-95 transition-all disabled:opacity-30 disabled:cursor-not-allowed">
+        className="flex -translate-y-3 items-center gap-2 glass px-5 py-2.5 rounded-full text-sm font-medium text-teal-600/80 hover:text-sky-900 hover:scale-105 active:scale-95 transition-all disabled:opacity-30 disabled:cursor-not-allowed sm:-translate-y-2">
         <RotateCcw size={15} /> Reset Timer
       </button>
 
       {/* Quick stats */}
-      <div className="flex gap-3 flex-wrap justify-center">
+      <div className="mb-16 grid w-full max-w-md -translate-y-10 grid-cols-3 gap-2 sm:mb-14 sm:-translate-y-8 sm:gap-3 md:mb-0 md:translate-y-0">
         {[
           { label: "Total Studied", value: formatTime(totalStudied) },
-          { label: "Packs Available", value: packs > 0 ? `🎴 ${packs}` : "—" },
+          { label: "Packs", value: packs > 0 ? String(packs) : "0" },
           { label: "Progress", value: `${(ringProgress * 100).toFixed(0)}%` },
         ].map(s => (
-          <div key={s.label} className="glass rounded-2xl px-5 py-3 text-center min-w-[100px]">
-            <div className="text-[10px] text-teal-600/60 mb-1 uppercase tracking-wider">{s.label}</div>
-            <div className="text-lg font-bold text-sky-900">{s.value}</div>
+          <div key={s.label} className="glass rounded-2xl px-3 py-3 text-center">
+            <div className="text-[9px] text-teal-600/60 mb-1 uppercase tracking-wide sm:text-[10px]">{s.label}</div>
+            <div className="text-base font-bold text-sky-900 sm:text-lg">{s.value}</div>
           </div>
         ))}
       </div>

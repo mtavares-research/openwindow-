@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Search, Layers, Star, Zap, Droplets } from "lucide-react";
+import { audioSystem } from "@/lib/audio";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -101,7 +102,7 @@ export default function CollectionPage() {
           />
         </div>
         {["all", "legendary", "holographic", "rare", "common"].map(r => (
-          <button key={r} onClick={() => setFilter(r)}
+          <button key={r} onClick={() => { audioSystem.playClick(); setFilter(r); }}
             className={`px-4 py-2 rounded-full text-sm font-medium transition-all capitalize ${filter === r ? "glass-button" : "glass text-teal-700/70 hover:text-sky-900"}`}>
             {r}
           </button>
@@ -131,7 +132,7 @@ export default function CollectionPage() {
           {filtered.map(c => (
             <div key={c.cardId}
               className={`glass ${rarityClass(c.card.rarity)} rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl group`}
-              onClick={() => setSelected(c)}>
+              onClick={() => { audioSystem.playClick(); setSelected(c); }}>
               <div className="p-3">
                 <img src={c.card.imageUrl} alt={c.card.name}
                   className="w-full aspect-square rounded-xl mb-2 object-cover group-hover:scale-105 transition-transform duration-300" />
@@ -147,33 +148,49 @@ export default function CollectionPage() {
 
       {/* Detail modal */}
       {selected && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-sky-900/40 backdrop-blur-lg" onClick={() => setSelected(null)}>
-          <div className="glass rounded-3xl p-6 max-w-xs w-full mx-4" onClick={e => e.stopPropagation()}>
-            <div className={`rounded-2xl overflow-hidden mb-4 ${rarityClass(selected.card.rarity)}`}>
-              <img src={selected.card.imageUrl} alt={selected.card.name} className="w-full aspect-square object-cover" />
-            </div>
-            <div className={`text-xs font-bold uppercase tracking-widest mb-1 ${rarityColor(selected.card.rarity)}`}>
-              {selected.card.rarity} · {selected.card.type}
-            </div>
-            <h2 className="text-2xl font-bold text-sky-900 mb-2">{selected.card.name}</h2>
-            <p className="text-foreground/60 text-sm mb-3">{selected.card.description}</p>
-            {selected.card.power !== null && (
-              <div className="glass rounded-xl px-3 py-2 mb-2 flex justify-between items-center">
-                <span className="text-teal-600/70 text-sm">Power</span>
-                <span className="text-sky-900 font-bold">{selected.card.power}</span>
+        <div
+          className="fixed inset-0 z-[80] flex items-center justify-center bg-sky-900/40 px-4 py-5 backdrop-blur-lg"
+          onClick={() => { audioSystem.playClick(); setSelected(null); }}
+        >
+          <div
+            className="glass flex max-h-[calc(100dvh-2.5rem)] w-full max-w-md flex-col overflow-hidden rounded-3xl bg-white/90 shadow-xl"
+            style={{ background: "rgba(248, 253, 255, 0.94)" }}
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="min-h-0 overflow-y-auto p-5 sm:p-6">
+              <div className={`rounded-2xl overflow-hidden mb-4 ${rarityClass(selected.card.rarity)}`}>
+                <img src={selected.card.imageUrl} alt={selected.card.name} className="w-full max-h-[42dvh] aspect-square object-cover" />
               </div>
-            )}
-            {selected.card.element && (
-              <div className="glass rounded-xl px-3 py-2 mb-3 flex justify-between items-center">
-                <span className="text-teal-600/70 text-sm">Element</span>
-                <span className={`font-semibold capitalize ${rarityColor(selected.card.rarity)}`}>{selected.card.element}</span>
+              <div className={`text-xs font-bold uppercase tracking-widest mb-1 ${rarityColor(selected.card.rarity)}`}>
+                {selected.card.rarity} · {selected.card.type}
               </div>
-            )}
-            {selected.card.flavorText && (
-              <p className="text-xs italic text-foreground/45 text-center mb-3">"{selected.card.flavorText}"</p>
-            )}
-            <div className="text-center text-xs text-foreground/40 mb-3">×{selected.quantity} owned</div>
-            <button onClick={() => setSelected(null)} className="glass-button w-full py-2.5 rounded-full font-medium">Close</button>
+              <h2 className="text-2xl font-bold text-sky-900 mb-2">{selected.card.name}</h2>
+              <p className="text-foreground/60 text-sm mb-3">{selected.card.description}</p>
+              {selected.card.power !== null && (
+                <div className="glass rounded-xl px-3 py-2 mb-2 flex justify-between items-center">
+                  <span className="text-teal-600/70 text-sm">Power</span>
+                  <span className="text-sky-900 font-bold">{selected.card.power}</span>
+                </div>
+              )}
+              {selected.card.element && (
+                <div className="glass rounded-xl px-3 py-2 mb-3 flex justify-between items-center">
+                  <span className="text-teal-600/70 text-sm">Element</span>
+                  <span className={`font-semibold capitalize ${rarityColor(selected.card.rarity)}`}>{selected.card.element}</span>
+                </div>
+              )}
+              {selected.card.flavorText && (
+                <p className="text-xs italic text-foreground/45 text-center mb-3">"{selected.card.flavorText}"</p>
+              )}
+              <div className="text-center text-xs text-foreground/40 mb-3">x{selected.quantity} owned</div>
+            </div>
+            <div className="relative z-10 border-t border-white/70 bg-white/80 p-4">
+              <button
+                onClick={() => { audioSystem.playClick(); setSelected(null); }}
+                className="glass-button w-full py-2.5 rounded-full font-medium"
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}
